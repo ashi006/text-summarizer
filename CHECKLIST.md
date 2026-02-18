@@ -60,6 +60,6 @@ This checklist tracks the progress and time spent on the Text Summarizer & Trans
 **Estimated Time:** 50 min | **Actual Time:** ---
 - [ ] 5.1 — Loading & error states
 - [ ] 5.2 — UI polish (Medical theme: whites, soft blues)
-- [ ] 5.3 — GitHub repo setup (.gitignore, README.md)
+- [/] 5.3 — GitHub repo setup (✅ .gitignore, [ ] README.md)
 - [ ] 5.4 — Deploy to Render (Backend + Frontend)
 - [ ] 5.5 — Final verification
