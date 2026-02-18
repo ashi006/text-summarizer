@@ -18,6 +18,15 @@ export const summarize = async (text: string, options: SummarizeOptions = {}) =>
     return response.data;
 };
 
+export const translate = async (text: string, targetLanguage: string) => {
+    const response = await api.post('/translate', {
+        text,
+        target_language: targetLanguage,
+    });
+    return response.data;
+};
+
 export default {
     summarize,
+    translate,
 };
