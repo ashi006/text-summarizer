@@ -12,16 +12,16 @@ This checklist tracks the progress and time spent on the Text Summarizer & Trans
 - [x] 1.6 — Verify Phase 1 (Start both servers, check health)
 
 ## Phase 2: Core Summarization
-**Estimated Time:** 75 min | **Actual Time:** ---
-- [ ] 2.1 — Create prompt templates (`backend/app/prompts.py`)
-- [ ] 2.2 — Build OpenAI service (`backend/app/services/openai_service.py`)
-- [ ] 2.3 — Add summarize endpoint (`POST /api/summarize`)
-- [ ] 2.4 — Test backend alone
-- [ ] 2.5 — Build `TextInput` component
-- [ ] 2.6 — Build `SummaryDisplay` component
-- [ ] 2.7 — Build API service (`frontend/src/services/api.ts`)
-- [ ] 2.8 — Wire up `App.tsx` (State, Persistence)
-- [ ] 2.9 — Verify Phase 2
+**Estimated Time:** 75 min | **Actual Time:** 35 min
+- [x] 2.1 — Create prompt templates (`backend/app/prompts.py`)
+- [x] 2.2 — Build OpenAI service (`backend/app/services/openai_service.py`)
+- [x] 2.3 — Add summarize endpoint (`POST /api/summarize`)
+- [x] 2.4 — Test backend alone
+- [x] 2.5 — Build `TextInput` component
+- [x] 2.6 — Build `SummaryDisplay` component
+- [x] 2.7 — Build API service (`frontend/src/services/api.ts`)
+- [x] 2.8 — Wire up `App.tsx` (State, Persistence)
+- [x] 2.9 — Verify Phase 2
 
 ## Phase 3: Translation
 **Estimated Time:** 50 min | **Actual Time:** ---
