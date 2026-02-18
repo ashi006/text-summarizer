@@ -3,13 +3,13 @@
 This checklist tracks the progress and time spent on the Text Summarizer & Translator project.
 
 ## Phase 1: Project Setup & Foundation
-**Estimated Time:** 30 min | **Actual Time:** ---
-- [ ] 1.1 — Create project folders (`frontend/`, `backend/`)
-- [ ] 1.2 — Scaffold frontend (Vite + React + TS, axios)
-- [ ] 1.3 — Scaffold backend (FastAPI, requirements.txt, main.py, .env.example)
-- [ ] 1.4 — Wire up CORS + proxy
-- [ ] 1.5 — Health check endpoint (`GET /health`)
-- [ ] 1.6 — Verify Phase 1 (Start both servers, check health)
+**Estimated Time:** 30 min | **Actual Time:** 15 min
+- [x] 1.1 — Create project folders (`frontend/`, `backend/`)
+- [x] 1.2 — Scaffold frontend (Vite + React + TS, axios)
+- [x] 1.3 — Scaffold backend (FastAPI, requirements.txt, main.py, .env.example)
+- [x] 1.4 — Wire up CORS + proxy
+- [x] 1.5 — Health check endpoint (`GET /health`)
+- [x] 1.6 — Verify Phase 1 (Start both servers, check health)
 
 ## Phase 2: Core Summarization
 **Estimated Time:** 75 min | **Actual Time:** ---
