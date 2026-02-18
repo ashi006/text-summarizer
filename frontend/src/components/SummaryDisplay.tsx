@@ -3,9 +3,10 @@ import React from 'react';
 interface SummaryDisplayProps {
     summary: string;
     isLoading: boolean;
+    onRegenerate?: () => void;
 }
 
-const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary, isLoading }) => {
+const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary, isLoading, onRegenerate }) => {
     const copyToClipboard = () => {
         navigator.clipboard.writeText(summary);
         alert('Summary copied to clipboard!');
@@ -25,12 +26,22 @@ const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary, isLoading }) =
         <div className="summary-display" style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f0f7ff', border: '1px solid #007bff', borderRadius: '8px', textAlign: 'left' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <h3 style={{ margin: 0 }}>Summary</h3>
-                <button
-                    onClick={copyToClipboard}
-                    style={{ padding: '4px 12px', cursor: 'pointer', borderRadius: '4px', background: '#007bff', color: 'white', border: 'none' }}
-                >
-                    Copy
-                </button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    {onRegenerate && (
+                        <button
+                            onClick={onRegenerate}
+                            style={{ padding: '4px 12px', cursor: 'pointer', borderRadius: '4px', background: '#28a745', color: 'white', border: 'none' }}
+                        >
+                            Regenerate
+                        </button>
+                    )}
+                    <button
+                        onClick={copyToClipboard}
+                        style={{ padding: '4px 12px', cursor: 'pointer', borderRadius: '4px', background: '#007bff', color: 'white', border: 'none' }}
+                    >
+                        Copy
+                    </button>
+                </div>
             </div>
             <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                 {summary}

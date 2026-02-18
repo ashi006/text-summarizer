@@ -33,28 +33,28 @@ This checklist tracks the progress and time spent on the Text Summarizer & Trans
 - [x] 3.6 — Verify Phase 3
 
 ## Phase 4: Optional Features
-**Estimated Time:** 100 min | **Actual Time:** ---
+**Estimated Time:** 100 min | **Actual Time:** 30 min
 
-### 4a: File Upload (25 min)
-- [ ] 4a.1 — Build file parser (`backend/app/services/file_parser.py` - .txt only)
-- [ ] 4a.2 — Add upload endpoint (`POST /api/upload`)
-- [ ] 4a.3 — Build `FileUpload` component
-- [ ] 4a.4 — Verify 4a
+### 4a: File Upload (Estimated: 25 min | Actual: 10 min)
+- [x] 4a.1 — Build file parser (`backend/app/services/file_parser.py` - .txt only)
+- [x] 4a.2 — Add upload endpoint (`POST /api/upload`)
+- [x] 4a.3 — Build `FileUpload` component
+- [x] 4a.4 — Verify 4a
 
-### 4b: Personalization (30 min)
-- [ ] 4b.1 — Build `PersonalizationPanel` component (Style, Tonality)
-- [ ] 4b.2 — Pass options to summarize
-- [ ] 4b.3 — Verify 4b
+### 4b: Personalization (Estimated: 30 min | Actual: 5 min)
+- [x] 4b.1 — Build `PersonalizationPanel` component (Style, Tonality)
+- [x] 4b.2 — Pass options to summarize
+- [x] 4b.3 — Verify 4b
 
-### 4c: Regenerate Summary (15 min)
-- [ ] 4c.1 — Add regenerate button to `SummaryDisplay.tsx`
-- [ ] 4c.2 — Verify 4c
+### 4c: Regenerate Summary (Estimated: 15 min | Actual: 5 min)
+- [x] 4c.1 — Add regenerate button to `SummaryDisplay.tsx`
+- [x] 4c.2 — Verify 4c
 
-### 4d: Multiple Summary Types (30 min)
-- [ ] 4d.1 — Build `SummaryTypeTabs` component (Brief, Detailed, Key Points, Action Points)
-- [ ] 4d.2 — Action Points behavior in `prompts.py`
-- [ ] 4d.3 — Wire into `App.tsx`
-- [ ] 4d.4 — Verify 4d
+### 4d: Multiple Summary Types (Estimated: 30 min | Actual: 5 min)
+- [x] 4d.1 — Build `SummaryTypeTabs` component (Brief, Detailed, Key Points, Action Points)
+- [x] 4d.2 — Action Points behavior in `prompts.py`
+- [x] 4d.3 — Wire into `App.tsx`
+- [x] 4d.4 — Verify 4d
 
 ## Phase 5: Polish & Deploy
 **Estimated Time:** 50 min | **Actual Time:** ---

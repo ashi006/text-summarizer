@@ -26,7 +26,19 @@ export const translate = async (text: string, targetLanguage: string) => {
     return response.data;
 };
 
+export const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
+};
+
 export default {
     summarize,
     translate,
+    uploadFile,
 };

@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 # Load environment variables at the very beginning
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
-from app.services import openai_service, translate_service
+from app.services import openai_service, translate_service, file_parser
 
 app = FastAPI(title="Transcript Summarizer API")
 
@@ -60,6 +60,16 @@ async def translate_text(request: TranslateRequest):
             "target_language": request.target_language
         }
     except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        text = await file_parser.parse_file(file)
+        return {"text": text}
+    except Exception as e:
+        if hasattr(e, 'detail'):
+            return {"error": e.detail}, 400
         return {"error": str(e)}, 500
 
 @app.get("/health")
