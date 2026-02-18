@@ -24,13 +24,13 @@ This checklist tracks the progress and time spent on the Text Summarizer & Trans
 - [x] 2.9 — Verify Phase 2
 
 ## Phase 3: Translation
-**Estimated Time:** 50 min | **Actual Time:** ---
-- [ ] 3.1 — Build translate service (`backend/app/services/translate_service.py` using `deep-translator`)
-- [ ] 3.2 — Add translate endpoint (`POST /api/translate`)
-- [ ] 3.3 — Test backend alone
-- [ ] 3.4 — Build `LanguageSelector` component (EN, FI, SV, AR, UR)
-- [ ] 3.5 — Wire up translation in `App.tsx`
-- [ ] 3.6 — Verify Phase 3
+**Estimated Time:** 50 min | **Actual Time:** 15 min
+- [x] 3.1 — Build translate service (`backend/app/services/translate_service.py` using `deep-translator`)
+- [x] 3.2 — Add translate endpoint (`POST /api/translate`)
+- [x] 3.3 — Test backend alone
+- [x] 3.4 — Build `LanguageSelector` component (EN, FI, SV, AR, UR)
+- [x] 3.5 — Wire up translation in `App.tsx`
+- [x] 3.6 — Verify Phase 3
 
 ## Phase 4: Optional Features
 **Estimated Time:** 100 min | **Actual Time:** ---

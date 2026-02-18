@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import TextInput from './components/TextInput';
 import SummaryDisplay from './components/SummaryDisplay';
+import LanguageSelector from './components/LanguageSelector';
 import api from './services/api';
 
 function App() {
   const [inputText, setInputText] = useState('');
-  const [summary, setSummary] = useState('');
+  const [originalSummary, setOriginalSummary] = useState('');
+  const [displayedSummary, setDisplayedSummary] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -13,7 +16,8 @@ function App() {
   useEffect(() => {
     const savedSummary = sessionStorage.getItem('last_summary');
     if (savedSummary) {
-      setSummary(savedSummary);
+      setOriginalSummary(savedSummary);
+      setDisplayedSummary(savedSummary);
     }
     const savedText = sessionStorage.getItem('last_input_text');
     if (savedText) {
@@ -23,18 +27,20 @@ function App() {
 
   // Save to sessionStorage when summary or input changes
   useEffect(() => {
-    sessionStorage.setItem('last_summary', summary);
+    sessionStorage.setItem('last_summary', originalSummary);
     sessionStorage.setItem('last_input_text', inputText);
-  }, [summary, inputText]);
+  }, [originalSummary, inputText]);
 
   const handleSummarize = async () => {
     if (!inputText.trim()) return;
 
     setIsLoading(true);
     setError('');
+    setSelectedLanguage(''); // Reset language when re-summarizing
     try {
       const result = await api.summarize(inputText);
-      setSummary(result.summary);
+      setOriginalSummary(result.summary);
+      setDisplayedSummary(result.summary);
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to summarize text. Please check your API key.');
@@ -43,9 +49,33 @@ function App() {
     }
   };
 
+  const handleLanguageChange = async (lang: string) => {
+    setSelectedLanguage(lang);
+    if (!lang) {
+      setDisplayedSummary(originalSummary);
+      return;
+    }
+
+    if (!originalSummary) return;
+
+    setIsLoading(true);
+    setError('');
+    try {
+      const result = await api.translate(originalSummary, lang);
+      setDisplayedSummary(result.translated_text);
+    } catch (err: any) {
+      console.error(err);
+      setError('Failed to translate summary.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleClear = () => {
     setInputText('');
-    setSummary('');
+    setOriginalSummary('');
+    setDisplayedSummary('');
+    setSelectedLanguage('');
     sessionStorage.removeItem('last_summary');
     sessionStorage.removeItem('last_input_text');
   };
@@ -91,7 +121,15 @@ function App() {
           </div>
         )}
 
-        <SummaryDisplay summary={summary} isLoading={isLoading} />
+        {originalSummary && (
+          <div style={{ marginTop: '30px' }}>
+            <LanguageSelector
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={handleLanguageChange}
+            />
+            <SummaryDisplay summary={displayedSummary} isLoading={isLoading} />
+          </div>
+        )}
       </main>
     </div>
   );
