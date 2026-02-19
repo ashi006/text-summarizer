@@ -17,7 +17,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        os.environ.get("FRONTEND_URL", ""),
+        "https://calm-tree-002b26003.1.azurestaticapps.net",
+        "https://calm-tree-002b26003.azurestaticapps.net",
+        os.environ.get("FRONTEND_URL", "").rstrip("/"),
     ],
     allow_credentials=True,
     allow_methods=["*"],
