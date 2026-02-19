@@ -4,3 +4,4 @@ openai
 deep-translator
 python-multipart
 python-dotenv
+gunicorn
