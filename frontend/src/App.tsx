@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TextInput from './components/TextInput';
 import SummaryDisplay from './components/SummaryDisplay';
 import LanguageSelector from './components/LanguageSelector';
-import FileUpload from './components/FileUpload';
 import PersonalizationPanel from './components/PersonalizationPanel';
 import SummaryTypeTabs from './components/SummaryTypeTabs';
 import api from './services/api';
+import { Loader2, Copy, Paperclip, RotateCcw, Eraser } from "lucide-react";
 import logo from './assets/logo.svg';
+import { Card, CardContent, CardTitle, CardHeader, CardFooter } from "./components/ui/card";
+import { Button } from "./components/ui/button";
+// import { Separator } from "@radix-ui/react-select"; // Wait, I didn't create Separator component, just use div or border
 
 function App() {
   const [inputText, setInputText] = useState('');
@@ -16,42 +19,43 @@ function App() {
   const [style, setStyle] = useState('paragraph');
   const [tonality, setTonality] = useState('professional');
   const [summaryType, setSummaryType] = useState('brief');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Hydrate from sessionStorage on load
+  // Hydrate from localStorage on load
   useEffect(() => {
-    const savedSummary = sessionStorage.getItem('last_summary');
-    if (savedSummary) {
-      setOriginalSummary(savedSummary);
-      setDisplayedSummary(savedSummary);
-    }
-    const savedText = sessionStorage.getItem('last_input_text');
-    if (savedText) {
-      setInputText(savedText);
-    }
+    const savedSummary = localStorage.getItem('last_summary');
+    const savedDisplayed = localStorage.getItem('last_displayed_summary');
+    const savedLang = localStorage.getItem('last_language');
+    const savedText = localStorage.getItem('last_input_text');
+    if (savedSummary) setOriginalSummary(savedSummary);
+    if (savedDisplayed) setDisplayedSummary(savedDisplayed);
+    else if (savedSummary) setDisplayedSummary(savedSummary);
+    if (savedLang) setSelectedLanguage(savedLang);
+    if (savedText) setInputText(savedText);
   }, []);
 
-  // Save to sessionStorage when summary or input changes
+  // Save to localStorage when summary, displayed summary, language, or input changes
   useEffect(() => {
-    sessionStorage.setItem('last_summary', originalSummary);
-    sessionStorage.setItem('last_input_text', inputText);
+    localStorage.setItem('last_summary', originalSummary);
+    localStorage.setItem('last_input_text', inputText);
   }, [originalSummary, inputText]);
 
-  // Trigger summary generation when summaryType changes (if there is text)
-  useEffect(() => {
-    if (inputText && !isLoading) {
-      handleSummarize();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [summaryType]);
 
   const handleSummarize = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim()) {
+      setError("Please enter text or upload a file.");
+      return;
+    }
 
-    setIsLoading(true);
-    setError('');
-    setSelectedLanguage('');
+    setIsGenerating(true);
+    setError(null);
+    setSelectedLanguage(''); // Clear language selection on new summary
+    setOriginalSummary(''); // Clear previous summary before generating new one
+    setDisplayedSummary('');
+
     try {
       const result = await api.summarize(inputText, {
         style,
@@ -64,35 +68,64 @@ function App() {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to summarize text.');
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!inputText.trim() && !originalSummary.trim()) return; // Nothing to regenerate from
+
+    setIsRegenerating(true);
+    setError(null);
+    setSelectedLanguage(''); // Reset language on regeneration
+
+    try {
+      // Regenerate from the original input text if available, otherwise from the last original summary
+      const textToSummarize = inputText.trim() ? inputText : originalSummary;
+      const result = await api.summarize(textToSummarize, {
+        style,
+        tonality,
+        summary_type: summaryType
+      });
+      setOriginalSummary(result.summary);
+      setDisplayedSummary(result.summary);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.error || 'Failed to regenerate summary.');
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
   const handleLanguageChange = async (lang: string) => {
     setSelectedLanguage(lang);
-    if (!lang) {
+    if (!lang || lang === 'original') {
       setDisplayedSummary(originalSummary);
+      localStorage.setItem('last_displayed_summary', originalSummary);
+      localStorage.setItem('last_language', '');
       return;
     }
 
     if (!originalSummary) return;
 
-    setIsLoading(true);
-    setError('');
+    setIsGenerating(true); // Using isGenerating for translation as well, or could introduce isTranslating
+    setError(null);
     try {
       const result = await api.translate(originalSummary, lang);
       setDisplayedSummary(result.translated_text);
+      localStorage.setItem('last_displayed_summary', result.translated_text);
+      localStorage.setItem('last_language', lang);
     } catch (err: any) {
       console.error(err);
       setError('Failed to translate summary.');
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
   const handleFileUpload = async (file: File) => {
-    setIsLoading(true);
-    setError('');
+    setIsGenerating(true);
+    setError(null);
     try {
       const result = await api.uploadFile(file);
       setInputText(result.text);
@@ -100,7 +133,7 @@ function App() {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to upload file.');
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -109,8 +142,10 @@ function App() {
     setOriginalSummary('');
     setDisplayedSummary('');
     setSelectedLanguage('');
-    sessionStorage.removeItem('last_summary');
-    sessionStorage.removeItem('last_input_text');
+    localStorage.removeItem('last_summary');
+    localStorage.removeItem('last_displayed_summary');
+    localStorage.removeItem('last_language');
+    localStorage.removeItem('last_input_text');
   };
 
   const handleSummaryTypeChange = (type: string) => {
@@ -118,116 +153,179 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="flex h-screen w-full bg-background text-foreground font-sans">
       {/* Sidebar */}
-      <aside className="sidebar">
-        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-          <img src={logo} alt="GOSTA Labs" style={{ height: '80px', marginBottom: '0' }} />
-          <div className="logo-title" style={{ margin: 0 }}>GOSTA Labs</div>
+      <aside className="w-[180px] border-r bg-muted/30 flex flex-col p-3 hidden md:flex">
+        <div className="mb-6 text-center">
+          <img src={logo} alt="GOSTA Labs" className="h-[50px] mx-auto mb-0" />
+          <div className="text-sm font-bold text-center">GOSTA Labs</div>
         </div>
 
-        <button className="new-encounter-btn">
-          + New summary
-        </button>
+        <Button className="w-full mb-auto gap-2" size="sm">
+          <span>+</span> New summary
+        </Button>
 
-        <div style={{ marginTop: 'auto' }}>
-          <div style={{ fontSize: '14px', marginBottom: '8px', color: '#6c757d', fontWeight: 'bold' }}>
+        <div className="mt-auto pt-4 border-t">
+          <div className="text-xs font-semibold text-muted-foreground mb-2">
             Context
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 0', borderTop: '1px solid #dee2e6' }}>
-            <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#dee2e6' }}></div>
-            <span style={{ fontSize: '14px' }}>Medical User</span>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-muted-foreground/20"></div>
+            <span className="text-xs">Medical User</span>
           </div>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="main-content">
-        {/* Top Bar */}
-        <header className="header">
-          <h2 style={{ fontSize: '20px', fontWeight: '500', margin: 0 }}>Transcript Summarizer</h2>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col overflow-hidden bg-[var(--bg)]">
+        {/* Top Header */}
+        <header className="h-[50px] border-b flex items-center justify-between px-4 bg-white z-20">
+          <h2 className="text-lg font-bold text-text">Transcript Summarizer</h2>
         </header>
 
-        {/* Scrollable Content */}
-        <div className="content-scroll">
-          <div className="two-column-grid">
+        {/* Configuration Bar */}
+        <div className="h-[60px] border-b flex items-stretch px-4 gap-6 bg-white shrink-0 overflow-x-auto py-0">
+          <SummaryTypeTabs
+            summaryType={summaryType}
+            onSummaryTypeChange={handleSummaryTypeChange}
+            isLoading={isGenerating || isRegenerating}
+          />
+          <div className="w-[1px] bg-border mx-2"></div>
+          <PersonalizationPanel
+            style={style}
+            onStyleChange={setStyle}
+            tonality={tonality}
+            onTonalityChange={setTonality}
+            isLoading={isGenerating || isRegenerating}
+          />
+        </div>
 
+        {/* Content Area */}
+        <div className="flex-1 p-4 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full max-w-[1600px] mx-auto">
 
-            {/* Left Column: Input */}
-            <div className="left-column">
-              <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Input Transcript</h3>
-              <FileUpload onUpload={handleFileUpload} isLoading={isLoading} />
-              <div style={{ marginBottom: '20px' }}></div>
-              <TextInput
-                value={inputText}
-                onChange={setInputText}
-                onClear={handleClear}
-              />
-            </div>
-
-            {/* Right Column: Configuration & Output */}
-            <div className="right-column">
-              <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Configuration & Output</h3>
-
-              <SummaryTypeTabs
-                summaryType={summaryType}
-                onSummaryTypeChange={handleSummaryTypeChange}
-                isLoading={isLoading}
-              />
-
-              <div style={{ marginBottom: '20px' }}>
-                <PersonalizationPanel
-                  style={style}
-                  onStyleChange={setStyle}
-                  tonality={tonality}
-                  onTonalityChange={setTonality}
-                  isLoading={isLoading}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+            {/* Left Card: Input */}
+            <Card className="flex flex-col h-full shadow-sm">
+              <CardHeader className="p-3 border-b space-y-0 flex flex-row items-center justify-between min-h-[50px]">
+                <CardTitle className="text-xs font-semibold uppercase tracking-wider text-dim">Input Text</CardTitle>
+                {/* File upload icon in header */}
                 <button
-                  onClick={handleSummarize}
-                  disabled={isLoading || !inputText.trim()}
-                  style={{
-                    backgroundColor: '#000',
-                    color: 'white',
-                    border: 'none',
-                    padding: '10px 24px',
-                    fontWeight: '600',
-                    opacity: (isLoading || !inputText.trim()) ? 0.5 : 1
-                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isGenerating}
+                  className="flex items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-text hover:bg-neutral-100 rounded transition-colors"
+                  title="Upload .txt file"
                 >
-                  {isLoading ? 'Processing...' : 'Generate Summary'}
+                  <Paperclip className="w-3.5 h-3.5" />
+                  Upload
                 </button>
-              </div>
-
-              {error && (
-                <div style={{ padding: '15px', backgroundColor: '#fff5f5', border: '1px solid #fc8181', borderRadius: '4px', color: '#c53030', marginBottom: '20px' }}>
-                  {error}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (!file.name.endsWith('.txt')) { alert('Please upload a .txt file.'); return; }
+                    handleFileUpload(file);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }}
+                />
+              </CardHeader>
+              <CardContent className="flex-1 p-4 flex flex-col min-h-0 bg-surface3/30">
+                <TextInput
+                  value={inputText}
+                  onChange={setInputText}
+                />
+                {error && (
+                  <div className="text-xs text-destructive bg-destructive/10 p-2 rounded mx-4 mb-2">
+                    {error}
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="p-4 border-t bg-muted/10 flex items-center justify-between">
+                {/* Left: char count + clear */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{inputText.length} characters</span>
+                  {inputText.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClear}
+                      className="flex items-center gap-1.5 h-8 px-2 text-xs text-muted-foreground hover:text-text hover:bg-neutral-200 transition-colors"
+                      title="Clear input text"
+                    >
+                      <Eraser className="w-3.5 h-3.5" />
+                      Clear Text
+                    </Button>
+                  )}
                 </div>
-              )}
+                {/* Right: generate */}
+                <Button
+                  onClick={handleSummarize}
+                  disabled={isGenerating}
+                  className="bg-black text-white hover:bg-neutral-800 hover:text-white transition-colors"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    "Generate"
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
 
-              {originalSummary && (
-                <div style={{ borderTop: '1px solid #dee2e6', paddingTop: '20px' }}>
-                  <h4 style={{ fontSize: '18px', marginBottom: '15px' }}>Result</h4>
-                  <LanguageSelector
-                    selectedLanguage={selectedLanguage}
-                    onLanguageChange={handleLanguageChange}
-                  />
-                  <SummaryDisplay
-                    summary={displayedSummary}
-                    isLoading={isLoading}
-                    onRegenerate={handleSummarize}
-                  />
-                </div>
-              )}
-            </div>
+            {/* Right Card: Output */}
+            <Card className="flex flex-col h-full shadow-sm">
+              <CardHeader className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-surface3/50 min-h-[50px]">
+                <div className="font-semibold text-xs uppercase tracking-wider text-dim">Output</div>
+                <LanguageSelector
+                  selectedLanguage={selectedLanguage}
+                  onLanguageChange={handleLanguageChange}
+                  isLoading={isGenerating || isRegenerating}
+                />
+              </CardHeader>
+              <CardContent className="flex-1 p-[1em] overflow-hidden relative">
+                <SummaryDisplay
+                  summary={displayedSummary}
+                  isLoading={isGenerating || isRegenerating}
+                />
+              </CardContent>
+              <CardFooter className="p-4 border-t bg-muted/10 flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigator.clipboard.writeText(displayedSummary)}
+                  disabled={!displayedSummary}
+                  className="flex items-center gap-1.5 h-8 px-2 text-xs text-muted-foreground hover:text-text hover:bg-neutral-200 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  Copy
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRegenerate}
+                  disabled={!originalSummary || isRegenerating}
+                  className="flex items-center gap-1.5 h-8 px-2 text-xs text-muted-foreground hover:text-text hover:bg-neutral-200 transition-colors"
+                  title="Regenerate summary"
+                >
+                  {isRegenerating
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <RotateCcw className="w-3.5 h-3.5" />}
+                  Regenerate
+                </Button>
+              </CardFooter>
+            </Card>
 
           </div>
         </div>
-      </div>
-    </div>
+      </main >
+    </div >
   );
 }
 

@@ -1,4 +1,5 @@
-import React from 'react';
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { Label } from "./ui/label";
 
 interface PersonalizationPanelProps {
     style: string;
@@ -8,78 +9,49 @@ interface PersonalizationPanelProps {
     isLoading: boolean;
 }
 
-const PersonalizationPanel: React.FC<PersonalizationPanelProps> = ({
+const PersonalizationPanel = ({
     style,
     onStyleChange,
     tonality,
     onTonalityChange,
     isLoading
-}) => {
-
-    const styles = [
-        { value: 'paragraph', label: 'Paragraph' },
-        { value: 'bullets', label: 'Bullet Points' },
-        { value: 'numbered', label: 'Numbered List' },
-    ];
-
-    const tonalities = [
-        { value: 'professional', label: 'Professional' },
-        { value: 'casual', label: 'Casual' },
-        { value: 'simplified', label: 'Simplified' },
-    ];
+}: PersonalizationPanelProps) => {
 
     return (
-        <div className="personalization-panel" style={{
-            marginBottom: '20px',
-            padding: '15px',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px',
-            border: '1px solid #e9ecef',
-            textAlign: 'left'
-        }}>
-            <h3 style={{ marginTop: 0, marginBottom: '15px', fontSize: '16px', color: '#495057' }}>Customize Summary</h3>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px' }}>
-                {/* Style Selection */}
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>Format Style</label>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        {styles.map((option) => (
-                            <label key={option.value} style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}>
-                                <input
-                                    type="radio"
-                                    name="style"
-                                    value={option.value}
-                                    checked={style === option.value}
-                                    onChange={(e) => onStyleChange(e.target.value)}
-                                    disabled={isLoading}
-                                    style={{ marginRight: '5px' }}
-                                />
-                                {option.label}
-                            </label>
-                        ))}
-                    </div>
+        <div className="flex h-full items-center gap-6">
+            {/* Style Selection */}
+            <div className="flex flex-col justify-center h-full space-y-1.5 min-w-max">
+                <Label className="text-[10.5px] uppercase tracking-wider font-semibold text-dim">Output Format</Label>
+                <div className="seg-ctrl bg-surface2 rounded-lg p-[3px] flex gap-[2px] border border-border">
+                    <ToggleGroup
+                        type="single"
+                        value={style}
+                        onValueChange={(val) => { if (val) onStyleChange(val); }}
+                        className="gap-0"
+                    >
+                        <ToggleGroupItem value="paragraph" disabled={isLoading} className="text-[12px] font-medium text-muted-foreground h-[28px] px-3 rounded-[6px] hover:text-text transition-all data-[state=on]:bg-green-200 data-[state=on]:text-green-800 data-[state=on]:shadow-sm">Paragraph</ToggleGroupItem>
+                        <ToggleGroupItem value="bullets" disabled={isLoading} className="text-[12px] font-medium text-muted-foreground h-[28px] px-3 rounded-[6px] hover:text-text transition-all data-[state=on]:bg-green-200 data-[state=on]:text-green-800 data-[state=on]:shadow-sm">Bullets</ToggleGroupItem>
+                        <ToggleGroupItem value="numbered" disabled={isLoading} className="text-[12px] font-medium text-muted-foreground h-[28px] px-3 rounded-[6px] hover:text-text transition-all data-[state=on]:bg-green-200 data-[state=on]:text-green-800 data-[state=on]:shadow-sm">Numbered</ToggleGroupItem>
+                    </ToggleGroup>
                 </div>
+            </div >
 
-                {/* Tonality Selection */}
-                <div style={{ flex: 1, minWidth: '200px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>Tonality</label>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        {tonalities.map((option) => (
-                            <label key={option.value} style={{ cursor: isLoading ? 'not-allowed' : 'pointer' }}>
-                                <input
-                                    type="radio"
-                                    name="tonality"
-                                    value={option.value}
-                                    checked={tonality === option.value}
-                                    onChange={(e) => onTonalityChange(e.target.value)}
-                                    disabled={isLoading}
-                                    style={{ marginRight: '5px' }}
-                                />
-                                {option.label}
-                            </label>
-                        ))}
-                    </div>
+            <div className="w-[1px] h-full bg-border mx-2"></div>
+
+            {/* Tonality Selection */}
+            < div className={`flex flex-col justify-center h-full space-y-1.5 min-w-max`}>
+                <Label className="text-[10.5px] uppercase tracking-wider font-semibold text-dim">Summary Tone</Label>
+                <div className="seg-ctrl bg-surface2 rounded-lg p-[3px] flex gap-[2px] border border-border">
+                    <ToggleGroup
+                        type="single"
+                        value={tonality}
+                        onValueChange={(val) => { if (val) onTonalityChange(val); }}
+                        className="gap-0"
+                    >
+                        <ToggleGroupItem value="professional" disabled={isLoading} className="text-[12px] font-medium text-muted-foreground h-[28px] px-3 rounded-[6px] hover:text-text transition-all data-[state=on]:bg-green-200 data-[state=on]:text-green-800 data-[state=on]:shadow-sm">Professional</ToggleGroupItem>
+                        <ToggleGroupItem value="casual" disabled={isLoading} className="text-[12px] font-medium text-muted-foreground h-[28px] px-3 rounded-[6px] hover:text-text transition-all data-[state=on]:bg-green-200 data-[state=on]:text-green-800 data-[state=on]:shadow-sm">Casual</ToggleGroupItem>
+                        <ToggleGroupItem value="simplified" disabled={isLoading} className="text-[12px] font-medium text-muted-foreground h-[28px] px-3 rounded-[6px] hover:text-text transition-all data-[state=on]:bg-green-200 data-[state=on]:text-green-800 data-[state=on]:shadow-sm">Simplified</ToggleGroupItem>
+                    </ToggleGroup>
                 </div>
             </div>
         </div>

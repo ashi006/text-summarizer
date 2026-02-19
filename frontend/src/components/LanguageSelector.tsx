@@ -1,8 +1,16 @@
-import React from 'react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "./ui/select"
+import { Label } from "./ui/label";
 
 interface LanguageSelectorProps {
     selectedLanguage: string;
     onLanguageChange: (lang: string) => void;
+    isLoading?: boolean;
 }
 
 const languages = [
@@ -13,25 +21,23 @@ const languages = [
     { code: 'ur', name: 'Urdu' },
 ];
 
-const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selectedLanguage, onLanguageChange }) => {
+const LanguageSelector = ({ selectedLanguage, onLanguageChange, isLoading }: LanguageSelectorProps) => {
     return (
-        <div className="language-selector" style={{ marginBottom: '20px' }}>
-            <label htmlFor="language-select" style={{ marginRight: '10px', fontWeight: 'bold' }}>
-                Translating into:
-            </label>
-            <select
-                id="language-select"
-                value={selectedLanguage}
-                onChange={(e) => onLanguageChange(e.target.value)}
-                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-            >
-                <option value="">Original Language</option>
-                {languages.map((lang) => (
-                    <option key={lang.code} value={lang.code}>
-                        {lang.name}
-                    </option>
-                ))}
-            </select>
+        <div className="flex items-center gap-2">
+            <Label htmlFor="language-select" className="whitespace-nowrap">Translate to:</Label>
+            <Select value={selectedLanguage} onValueChange={onLanguageChange} disabled={isLoading}>
+                <SelectTrigger className="w-[140px] h-[32px] text-xs">
+                    <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="original">Original Language</SelectItem>
+                    {languages.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                            {lang.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
     );
 };

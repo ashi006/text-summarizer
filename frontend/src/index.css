@@ -1,28 +1,221 @@
-:root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,500&family=DM+Mono:wght@400;500&display=swap');
 
-  color-scheme: light;
-  color: #212529;
-  background-color: #ffffff;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  :root {
+    font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-size: 14px;
+    /* Reduced base font size */
 
-  --primary-color: #212529;
-  /* Dark text/black */
-  --secondary-color: #6c757d;
-  /* Grey text */
-  --accent-color: #000000;
-  /* Black for buttons */
-  --border-color: #dee2e6;
-  --bg-sidebar: #f8f9fa;
-  /* Light grey sidebar */
-  --link-color: #0d6efd;
-  /* Blue links */
+    /* Lingo Color Palette */
+    --bg: #f8f9fa;
+    /* Lighter Grey */
+    --surface: #ffffff;
+    --surface2: #f5f5f8;
+    --surface3: #ededf1;
+    --border: #e2e2ea;
+    --border2: #cacad6;
+    --text: #111118;
+    --text-2: #3d3d4e;
+    --muted: #7b7b96;
+    --dim: #adadc2;
+    --accent: #16a34a;
+    /* Green */
+    --accent-bg: #dcfce7;
+    /* Green Light */
+    --accent-border: #bbf7d0;
+    --pink: #e879f9;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, .07), 0 1px 2px rgba(0, 0, 0, .05);
+    --shadow: 0 4px 12px rgba(0, 0, 0, .08), 0 2px 4px rgba(0, 0, 0, .04);
+
+    /* Shadcn Overrides to match Lingo */
+    --background: 240 14% 94%;
+    /* --bg converted approx */
+    --foreground: 240 17% 8%;
+    /* --text */
+    --card: 0 0% 100%;
+    --card-foreground: 240 17% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 17% 8%;
+    --primary: 240 17% 8%;
+    /* --text */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 11% 96%;
+    /* --surface2 */
+    --secondary-foreground: 240 17% 8%;
+    --muted: 240 11% 96%;
+    --muted-foreground: 240 10% 53%;
+    /* --muted */
+    --accent: 271 91% 65%;
+    /* --accent */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 240 12% 90%;
+    /* --border */
+    --input: 240 12% 90%;
+    --ring: 271 91% 65%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Close the layer block */
+
+/* Moved styling outside of @layer base to standard CSS, overwriting previous styles if any */
+.header {
+  height: 50px;
+  /* Reduced fixed height */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  /* Horizontal padding */
+  border-bottom: 1px solid var(--border) !important;
+  background-color: var(--surface) !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Lingo Segmented Control Style */
+.seg-ctrl {
+  display: flex;
+  background: var(--surface2) !important;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+/* Active Segment Options */
+button[data-state="on"] {
+  background-color: #bbf7d0 !important;
+  /* Green-200 - Visible Light Green */
+  color: #15803d !important;
+  /* Green-700 Text */
+  border: 1px solid #86efac !important;
+  /* Green-300 Border */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+}
+
+
+
+/* Upload Zone Hover (Green) */
+/* Apply lighter green background to the group on hover */
+.group:hover {
+  background-color: #f0fdf4 !important;
+  /* Very light green bg */
+  border-color: #bbf7d0 !important;
+  /* Light green border */
+}
+
+/* Make text green on hover */
+.group:hover .text-muted-foreground {
+  color: var(--accent) !important;
+}
+
+/* Make inner icon border green on hover */
+.group:hover .border-border {
+  border-color: #bbf7d0 !important;
+}
+
+/* Browse Button Hover - Override group effects */
+div.browse-btn {
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+div.browse-btn:hover {
+  background-color: #e5e7eb !important;
+  /* Tailwind gray-200 */
+  border-color: #d1d5db !important;
+  color: var(--text) !important;
+}
+
+.welcome-section {
+  grid-column: 1 / -1;
+  /* Span full width */
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.welcome-section h1 {
+  margin-top: 0;
+}
+
+.logo-header {
+  height: 24px;
+  width: auto;
+}
+
+/* Typography styles */
+h1,
+h2,
+h3 {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Select Trigger Focus */
+button[role="combobox"]:focus,
+button[role="combobox"][data-state="open"] {
+  border-color: var(--accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--accent-bg) !important;
+}
+
+/* Select Item Highlight */
+div[role="option"]:focus,
+div[role="option"][data-state="checked"],
+div[role="option"][data-highlighted] {
+  background-color: #bbf7d0 !important;
+  color: #15803d !important;
 }
 
 body {
@@ -46,13 +239,13 @@ body {
 }
 
 .sidebar {
-  width: 200px;
+  width: 180px;
   /* Reduced width */
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 12px;
   /* Reduced padding */
   box-sizing: border-box;
 }
@@ -67,170 +260,3 @@ body {
   /* Prevent full page scroll, let content scroll */
   background-color: #fff;
 }
-
-.header {
-  height: 60px;
-  /* Reduced fixed height */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  /* Horizontal padding */
-  border-bottom: 1px solid var(--border-color);
-  background-color: #fff;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.content-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 40px;
-}
-
-.two-column-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  max-width: 1400px;
-  margin: 0 auto;
-  align-items: start;
-}
-
-.welcome-section {
-  grid-column: 1 / -1;
-  /* Span full width */
-  text-align: center;
-  margin-bottom: 0;
-}
-
-.welcome-section h1 {
-  margin-top: 0;
-}
-
-.logo-header {
-  height: 32px;
-  width: auto;
-}
-
-/* Typography */
-h1 {
-  font-size: 32px;
-  line-height: 1.2;
-  font-weight: 500;
-  /* Semi-bold but not too heavy */
-  margin-bottom: 24px;
-  color: var(--primary-color);
-}
-
-p {
-  color: var(--secondary-color);
-  margin-bottom: 16px;
-  font-size: 16px;
-}
-
-a {
-  color: var(--link-color);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* Button override */
-button {
-  border-radius: 4px;
-  /* Slightly rounded corners like image */
-  border: 1px solid var(--border-color);
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #fff;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-
-button:hover {
-  border-color: #000;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-/* Custom classes matching image style */
-.logo-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.new-encounter-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--border-color);
-  background-color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
-  width: 100%;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: auto;
-  /* Pushes content below to bottom */
-}
-
-.outline-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1px solid var(--border-color);
-  background: white;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #212529;
-  font-weight: 500;
-}
-
-/* Form Elements */
-textarea {
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  padding: 12px;
-}
-
-textarea:focus {
-  outline: 2px solid #000;
-  border-color: #000;
-}
-
-/* Tab override */
-.summary-type-tabs {
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 30px;
-}
-
-.summary-type-tabs button {
-  border: none;
-  background: none;
-  padding: 12px 20px;
-  font-size: 15px;
-  color: var(--secondary-color);
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-}
-
-.summary-type-tabs button:hover {
-  color: #000;
-  border-color: transparent;
-  /* Hover state shouldn't add border unless active */
-}
-
-/* Active state handled in component via inline styles, or use class here */

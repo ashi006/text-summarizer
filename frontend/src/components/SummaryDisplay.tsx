@@ -1,49 +1,32 @@
-import React from 'react';
-
 interface SummaryDisplayProps {
     summary: string;
     isLoading: boolean;
-    onRegenerate?: () => void;
 }
 
-const SummaryDisplay: React.FC<SummaryDisplayProps> = ({ summary, isLoading, onRegenerate }) => {
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(summary);
-        alert('Summary copied to clipboard!');
-    };
+const SummaryDisplay = ({ summary, isLoading }: SummaryDisplayProps) => {
 
     if (isLoading) {
         return (
-            <div className="summary-display" style={{ marginTop: '20px', padding: '20px', border: '1px dashed #007bff', borderRadius: '8px' }}>
-                <p>Summarizing... please wait.</p>
+            <div className="flex h-full items-center justify-center p-12 text-muted-foreground animate-pulse border-2 border-dashed rounded-lg">
+                Summarizing... please wait.
             </div>
         );
     }
 
-    if (!summary) return null;
-
-    return (
-        <div className="summary-display" style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f0f7ff', border: '1px solid #007bff', borderRadius: '8px', textAlign: 'left' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <h3 style={{ margin: 0 }}>Summary</h3>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    {onRegenerate && (
-                        <button
-                            onClick={onRegenerate}
-                            style={{ padding: '4px 12px', cursor: 'pointer', borderRadius: '4px', background: '#28a745', color: 'white', border: 'none' }}
-                        >
-                            Regenerate
-                        </button>
-                    )}
-                    <button
-                        onClick={copyToClipboard}
-                        style={{ padding: '4px 12px', cursor: 'pointer', borderRadius: '4px', background: '#007bff', color: 'white', border: 'none' }}
-                    >
-                        Copy
-                    </button>
+    if (!summary) {
+        return (
+            <div className="flex h-full items-center justify-center p-12 text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
+                <div className="text-center">
+                    <div className="text-lg font-medium">No Summary Generated</div>
+                    <p className="text-sm mt-1">Process your input to see results here.</p>
                 </div>
             </div>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+        );
+    }
+
+    return (
+        <div className="relative h-full flex flex-col">
+            <div className="flex-1 whitespace-pre-wrap leading-relaxed text-sm p-4 overflow-y-auto border rounded-lg bg-background">
                 {summary}
             </div>
         </div>
