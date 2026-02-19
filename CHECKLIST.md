@@ -57,9 +57,9 @@ This checklist tracks the progress and time spent on the Text Summarizer & Trans
 - [x] 4d.4 — Verify 4d
 
 ## Phase 5: Polish & Deploy
-**Estimated Time:** 50 min | **Actual Time:** ---
-- [ ] 5.1 — Loading & error states
-- [ ] 5.2 — UI polish (Medical theme: whites, soft blues)
-- [/] 5.3 — GitHub repo setup (✅ .gitignore, [ ] README.md)
-- [ ] 5.4 — Deploy to Render (Backend + Frontend)
-- [ ] 5.5 — Final verification
+**Estimated Time:** 50 min | **Actual Time:** 120 min
+- [x] 5.1 — Loading & error states
+- [x] 5.2 — UI polish (Medical theme: whites, soft blues)
+- [x] 5.3 — GitHub repo setup (✅ .gitignore, [x] README.md)
+- [x] 5.4 — Deploy to Render (Backend + Frontend)
+- [x] 5.5 — Final verification
