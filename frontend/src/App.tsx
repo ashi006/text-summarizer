@@ -30,18 +30,28 @@ function App() {
     const savedDisplayed = localStorage.getItem('last_displayed_summary');
     const savedLang = localStorage.getItem('last_language');
     const savedText = localStorage.getItem('last_input_text');
+    const savedStyle = localStorage.getItem('last_style');
+    const savedTonality = localStorage.getItem('last_tonality');
+    const savedSummaryType = localStorage.getItem('last_summary_type');
+
     if (savedSummary) setOriginalSummary(savedSummary);
     if (savedDisplayed) setDisplayedSummary(savedDisplayed);
     else if (savedSummary) setDisplayedSummary(savedSummary);
     if (savedLang) setSelectedLanguage(savedLang);
     if (savedText) setInputText(savedText);
+    if (savedStyle) setStyle(savedStyle);
+    if (savedTonality) setTonality(savedTonality);
+    if (savedSummaryType) setSummaryType(savedSummaryType);
   }, []);
 
-  // Save to localStorage when summary, displayed summary, language, or input changes
+  // Save to localStorage when state changes
   useEffect(() => {
     localStorage.setItem('last_summary', originalSummary);
     localStorage.setItem('last_input_text', inputText);
-  }, [originalSummary, inputText]);
+    localStorage.setItem('last_style', style);
+    localStorage.setItem('last_tonality', tonality);
+    localStorage.setItem('last_summary_type', summaryType);
+  }, [originalSummary, inputText, style, tonality, summaryType]);
 
 
   const handleSummarize = async () => {
