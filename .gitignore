@@ -22,3 +22,10 @@ dist-ssr/
 # OS
 .DS_Store
 Thumbs.db
+
+# Planning docs
+implementation_plan.md
+step_by_step_guide.md
+CHECKLIST.md
+task-description.docx
+
