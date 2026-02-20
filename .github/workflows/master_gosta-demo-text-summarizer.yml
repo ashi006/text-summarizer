@@ -56,6 +56,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'gosta-demo-text-summarizer-c7ggfjd7gfcdfje8'
+          app-name: 'gosta-demo-text-summarizer'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
