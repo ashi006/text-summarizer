@@ -22,6 +22,7 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hydrate from localStorage on load
@@ -87,7 +88,8 @@ function App() {
 
     setIsRegenerating(true);
     setError(null);
-    setSelectedLanguage(''); // Reset language on regeneration
+    // Preserve the currently selected language so we can re-translate after regeneration
+    const currentLanguage = selectedLanguage;
 
     try {
       // Regenerate from the original input text if available, otherwise from the last original summary
@@ -98,7 +100,22 @@ function App() {
         summary_type: summaryType
       });
       setOriginalSummary(result.summary);
-      setDisplayedSummary(result.summary);
+
+      // Re-translate the new summary into the previously selected language if one was active
+      if (currentLanguage && currentLanguage !== 'original') {
+        try {
+          const translated = await api.translate(result.summary, currentLanguage);
+          setDisplayedSummary(translated.translated_text);
+          localStorage.setItem('last_displayed_summary', translated.translated_text);
+        } catch {
+          // If translation fails, fall back to English
+          setDisplayedSummary(result.summary);
+          localStorage.setItem('last_displayed_summary', result.summary);
+          setSelectedLanguage('');
+        }
+      } else {
+        setDisplayedSummary(result.summary);
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to regenerate summary.');
@@ -156,6 +173,12 @@ function App() {
     localStorage.removeItem('last_displayed_summary');
     localStorage.removeItem('last_language');
     localStorage.removeItem('last_input_text');
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(displayedSummary);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSummaryTypeChange = (type: string) => {
@@ -308,13 +331,14 @@ function App() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigator.clipboard.writeText(displayedSummary)}
+                  onClick={handleCopy}
                   disabled={!displayedSummary}
-                  className="flex items-center gap-1.5 h-8 px-2 text-xs text-muted-foreground hover:text-text hover:bg-neutral-200 transition-colors"
+                  className={`flex items-center gap-1.5 h-8 px-2 text-xs hover:bg-neutral-200 transition-colors ${copied ? 'text-green-600' : 'text-muted-foreground hover:text-text'
+                    }`}
                   title="Copy to clipboard"
                 >
                   <Copy className="w-3.5 h-3.5" />
-                  Copy
+                  {copied ? 'Copied!' : 'Copy'}
                 </Button>
                 <Button
                   variant="ghost"

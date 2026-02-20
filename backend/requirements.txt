@@ -5,3 +5,6 @@ deep-translator
 python-multipart
 python-dotenv
 gunicorn
+pytest
+pytest-asyncio
+httpx

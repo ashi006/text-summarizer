@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 # Load environment variables at the very beginning
 load_dotenv()
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -72,10 +72,11 @@ async def upload_file(file: UploadFile = File(...)):
     try:
         text = await file_parser.parse_file(file)
         return {"text": text}
+    except HTTPException:
+        raise
     except Exception as e:
-        if hasattr(e, 'detail'):
-            return {"error": e.detail}, 400
         return {"error": str(e)}, 500
+
 
 @app.get("/health")
 async def health_check():
