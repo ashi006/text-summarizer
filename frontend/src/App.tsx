@@ -325,6 +325,7 @@ function App() {
                 <SummaryDisplay
                   summary={displayedSummary}
                   isLoading={isGenerating || isRegenerating}
+                  language={selectedLanguage}
                 />
               </CardContent>
               <CardFooter className="p-4 border-t bg-muted/10 flex items-center gap-1">

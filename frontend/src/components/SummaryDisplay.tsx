@@ -1,9 +1,13 @@
 interface SummaryDisplayProps {
     summary: string;
     isLoading: boolean;
+    language?: string;
 }
 
-const SummaryDisplay = ({ summary, isLoading }: SummaryDisplayProps) => {
+const RTL_LANGUAGES = ['ar', 'ur'];
+
+const SummaryDisplay = ({ summary, isLoading, language }: SummaryDisplayProps) => {
+    const isRTL = RTL_LANGUAGES.includes(language ?? '');
 
     if (isLoading) {
         return (
@@ -26,7 +30,11 @@ const SummaryDisplay = ({ summary, isLoading }: SummaryDisplayProps) => {
 
     return (
         <div className="relative h-full flex flex-col">
-            <div className="flex-1 whitespace-pre-wrap leading-relaxed text-sm p-4 overflow-y-auto border rounded-lg bg-background">
+            <div
+                className="flex-1 whitespace-pre-wrap leading-relaxed text-sm p-4 overflow-y-auto border rounded-lg bg-background"
+                dir={isRTL ? 'rtl' : 'ltr'}
+                style={isRTL ? { textAlign: 'right', lineHeight: '2', fontFamily: 'serif' } : undefined}
+            >
                 {summary}
             </div>
         </div>
