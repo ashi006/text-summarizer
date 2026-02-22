@@ -9,4 +9,6 @@ motor
 pytest
 pytest-asyncio
 httpx
+certifi
+dnspython
 

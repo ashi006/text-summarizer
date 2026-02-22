@@ -1,6 +1,7 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
+import certifi
 
 load_dotenv()
 
@@ -13,7 +14,8 @@ def get_client() -> AsyncIOMotorClient:
         uri = os.getenv("MONGODB_URI")
         if not uri:
             raise ValueError("MONGODB_URI environment variable is not set")
-        _client = AsyncIOMotorClient(uri)
+        # Use certifi's bundle for SSL verification (common fix for Azure/Atlas)
+        _client = AsyncIOMotorClient(uri, tlsCAFile=certifi.where())
     return _client
 
 
