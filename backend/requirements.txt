@@ -5,6 +5,8 @@ deep-translator
 python-multipart
 python-dotenv
 gunicorn
+motor
 pytest
 pytest-asyncio
 httpx
+

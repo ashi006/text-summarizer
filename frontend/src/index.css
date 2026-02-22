@@ -260,3 +260,27 @@ body {
   /* Prevent full page scroll, let content scroll */
   background-color: #fff;
 }
+
+/* Custom scrollbar for sidebar */
+aside ::-webkit-scrollbar {
+  width: 4px;
+}
+
+aside ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside ::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+/* Show scrollbar only when hovering over the sidebar */
+aside:hover ::-webkit-scrollbar-thumb {
+  background: #cacad6;
+}
+
+aside:hover ::-webkit-scrollbar-thumb:hover {
+  background: #a0a0b4;
+}

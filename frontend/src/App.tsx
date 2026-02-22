@@ -4,14 +4,18 @@ import SummaryDisplay from './components/SummaryDisplay';
 import LanguageSelector from './components/LanguageSelector';
 import PersonalizationPanel from './components/PersonalizationPanel';
 import SummaryTypeTabs from './components/SummaryTypeTabs';
+import HistoryList from './components/HistoryList';
 import api from './services/api';
-import { Loader2, Copy, Paperclip, RotateCcw, Eraser } from "lucide-react";
+import historyApi from './services/historyApi';
+import type { HistoryItem } from './services/historyApi';
+import { useDeviceId } from './hooks/useDeviceId';
+import { Loader2, Copy, Paperclip, RotateCcw, Eraser, Menu, X } from "lucide-react";
 import logo from './assets/logo.svg';
 import { Card, CardContent, CardTitle, CardHeader, CardFooter } from "./components/ui/card";
 import { Button } from "./components/ui/button";
-// import { Separator } from "@radix-ui/react-select"; // Wait, I didn't create Separator component, just use div or border
 
 function App() {
+  const deviceId = useDeviceId();
   const [inputText, setInputText] = useState('');
   const [originalSummary, setOriginalSummary] = useState('');
   const [displayedSummary, setDisplayedSummary] = useState('');
@@ -23,6 +27,11 @@ function App() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [historySkip, setHistorySkip] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hydrate from localStorage on load
@@ -54,6 +63,113 @@ function App() {
     localStorage.setItem('last_summary_type', summaryType);
   }, [originalSummary, inputText, style, tonality, summaryType]);
 
+  // Fetch history when deviceId is available
+  useEffect(() => {
+    if (!deviceId) return;
+    historyApi.getHistory(deviceId, 0)
+      .then(({ items, has_more }) => {
+        setHistory(items);
+        setHasMore(has_more);
+        setHistorySkip(items.length);
+      })
+      .catch(() => { });
+  }, [deviceId]);
+
+  // Reset and reload first page of history
+  const fetchHistory = async () => {
+    if (!deviceId) return;
+    try {
+      const { items, has_more } = await historyApi.getHistory(deviceId, 0);
+      setHistory(items);
+      setHasMore(has_more);
+      setHistorySkip(items.length);
+    } catch { }
+  };
+
+  // Append next page (called by infinite scroll)
+  const loadMoreHistory = async () => {
+    if (!deviceId || !hasMore) return;
+    try {
+      const { items, has_more } = await historyApi.getHistory(deviceId, historySkip);
+      setHistory((prev) => [...prev, ...items]);
+      setHasMore(has_more);
+      setHistorySkip((prev) => prev + items.length);
+    } catch { }
+  };
+
+  const handleNewSummary = async () => {
+    // Save current summary to DB whenever there is one in the UI (upsert — no duplicates)
+    if (originalSummary && deviceId) {
+      try {
+        await historyApi.saveHistory(deviceId, {
+          input_text: inputText,
+          summary: originalSummary,
+          translated_summary: displayedSummary !== originalSummary ? displayedSummary : null,
+          summary_type: summaryType,
+          style,
+          tonality,
+          language: selectedLanguage || 'original',
+        });
+        await fetchHistory();
+      } catch { }
+    }
+    // Clear UI for a fresh summary
+    setInputText('');
+    setOriginalSummary('');
+    setDisplayedSummary('');
+    setSelectedLanguage('');
+    setCurrentHistoryId(null);
+    localStorage.removeItem('last_summary');
+    localStorage.removeItem('last_displayed_summary');
+    localStorage.removeItem('last_language');
+    localStorage.removeItem('last_input_text');
+  };
+
+  const handleSelectHistory = (item: HistoryItem) => {
+    // If there's a summary currently in the UI, save it before switching
+    if (originalSummary && deviceId) {
+      historyApi.saveHistory(deviceId, {
+        input_text: inputText,
+        summary: originalSummary,
+        translated_summary: displayedSummary !== originalSummary ? displayedSummary : null,
+        summary_type: summaryType,
+        style,
+        tonality,
+        language: selectedLanguage || 'original',
+      }).then(fetchHistory).catch(() => { });
+    }
+    // Load the clicked history item into the UI
+    setInputText(item.input_text);
+    setOriginalSummary(item.summary);
+    setDisplayedSummary(item.translated_summary ?? item.summary);
+    setSelectedLanguage(item.language === 'original' ? '' : item.language);
+    setSummaryType(item.summary_type);
+    setStyle(item.style);
+    setTonality(item.tonality);
+    setCurrentHistoryId(item.id);
+  };
+
+  const handleDeleteHistory = async (id: string) => {
+    if (!deviceId) return;
+    try {
+      await historyApi.deleteSummary(deviceId, id);
+      setHistory((prev) => prev.filter((h) => h.id !== id));
+      // If the deleted item is currently shown in the UI, clear the UI
+      if (currentHistoryId === id) {
+        setCurrentHistoryId(null);
+        setInputText('');
+        setOriginalSummary('');
+        setDisplayedSummary('');
+        setSelectedLanguage('');
+        localStorage.removeItem('last_summary');
+        localStorage.removeItem('last_displayed_summary');
+        localStorage.removeItem('last_language');
+        localStorage.removeItem('last_input_text');
+      }
+      await fetchHistory(); // Sync from server to catch any race-condition re-inserts
+    } catch { }
+  };
+
 
   const handleSummarize = async () => {
     if (!inputText.trim()) {
@@ -66,6 +182,7 @@ function App() {
     setSelectedLanguage(''); // Clear language selection on new summary
     setOriginalSummary(''); // Clear previous summary before generating new one
     setDisplayedSummary('');
+    setCurrentHistoryId(null);
 
     try {
       const result = await api.summarize(inputText, {
@@ -75,6 +192,7 @@ function App() {
       });
       setOriginalSummary(result.summary);
       setDisplayedSummary(result.summary);
+      // Summary stays in localStorage only — DB save happens on "New summary" click
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to summarize text.');
@@ -130,18 +248,42 @@ function App() {
       setDisplayedSummary(originalSummary);
       localStorage.setItem('last_displayed_summary', originalSummary);
       localStorage.setItem('last_language', '');
+      // Update DB record to clear translation
+      if (deviceId && originalSummary) {
+        historyApi.saveHistory(deviceId, {
+          input_text: inputText,
+          summary: originalSummary,
+          translated_summary: null,
+          summary_type: summaryType,
+          style,
+          tonality,
+          language: 'original',
+        }).then(fetchHistory).catch(() => { });
+      }
       return;
     }
 
     if (!originalSummary) return;
 
-    setIsGenerating(true); // Using isGenerating for translation as well, or could introduce isTranslating
+    setIsGenerating(true);
     setError(null);
     try {
       const result = await api.translate(originalSummary, lang);
       setDisplayedSummary(result.translated_text);
       localStorage.setItem('last_displayed_summary', result.translated_text);
       localStorage.setItem('last_language', lang);
+      // Persist language + translated summary to DB immediately
+      if (deviceId) {
+        historyApi.saveHistory(deviceId, {
+          input_text: inputText,
+          summary: originalSummary,
+          translated_summary: result.translated_text,
+          summary_type: summaryType,
+          style,
+          tonality,
+          language: lang,
+        }).then(fetchHistory).catch(() => { });
+      }
     } catch (err: any) {
       console.error(err);
       setError('Failed to translate summary.');
@@ -186,34 +328,74 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground font-sans">
+    <div className="flex h-screen w-full bg-background text-foreground font-sans relative">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-[180px] border-r bg-muted/30 flex flex-col p-3 hidden md:flex">
-        <div className="mb-6 text-center">
-          <img src={logo} alt="GOSTA Labs" className="h-[50px] mx-auto mb-0" />
-          <div className="text-sm font-bold text-center">GOSTA Labs</div>
+      <aside className={`
+        fixed inset-y-0 left-0 w-[200px] border-r bg-muted/95 backdrop-blur-sm flex flex-col p-3 z-50 transition-transform duration-300 md:relative md:translate-x-0 md:bg-muted/30 md:w-[180px]
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 cursor-default'}
+      `}>
+        <div className="flex items-center justify-between mb-6 md:justify-center">
+          <div className="flex flex-col items-center">
+            <img src={logo} alt="GOSTA Labs" className="h-[50px] mx-auto mb-0" />
+            <div className="text-sm font-bold text-center">GOSTA Labs</div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
 
-        <Button className="w-full mb-auto gap-2" size="sm">
+        <Button className="w-full gap-2 shrink-0" size="sm" onClick={() => { handleNewSummary(); setIsSidebarOpen(false); }}>
           <span>+</span> New summary
         </Button>
 
-        <div className="mt-auto pt-4 border-t">
-          <div className="text-xs font-semibold text-muted-foreground mb-2">
-            Context
-          </div>
+        <div className="flex-1 overflow-y-auto">
+          <HistoryList
+            items={history}
+            onSelect={(item) => { handleSelectHistory(item); setIsSidebarOpen(false); }}
+            onDelete={handleDeleteHistory}
+            activeId={currentHistoryId}
+            hasMore={hasMore}
+            onLoadMore={loadMoreHistory}
+          />
+        </div>
+
+        <div className="mt-auto pt-3 border-t shrink-0">
+          <div className="text-xs font-semibold text-muted-foreground mb-1.5">Context</div>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-muted-foreground/20"></div>
-            <span className="text-xs">Medical User</span>
+            <div className="w-6 h-6 rounded-full bg-muted-foreground/20 shrink-0" />
+            <span className="text-xs truncate">Medical User</span>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[var(--bg)]">
+      <main className="flex-1 flex flex-col overflow-y-auto md:overflow-hidden bg-[var(--bg)]">
         {/* Top Header */}
-        <header className="h-[50px] border-b flex items-center justify-between px-4 bg-white z-20">
-          <h2 className="text-lg font-bold text-text">Transcript Summarizer</h2>
+        <header className="h-[50px] border-b flex items-center justify-between px-4 bg-white z-20 shrink-0">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <h2 className="text-lg font-bold text-text">Transcript Summarizer</h2>
+          </div>
         </header>
 
         {/* Configuration Bar */}
@@ -234,8 +416,8 @@ function App() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-4 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full max-w-[1600px] mx-auto">
+        <div className="flex-1 p-4 overflow-y-auto md:overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-auto lg:h-full max-w-[1600px] mx-auto">
 
             {/* Left Card: Input */}
             <Card className="flex flex-col h-full shadow-sm">

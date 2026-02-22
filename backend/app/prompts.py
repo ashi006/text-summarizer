@@ -34,6 +34,6 @@ def get_system_prompt(summary_type: str, style: str, tonality: str) -> str:
     else:
         prompt += "Use a professional and formal medical tone. "
 
-    prompt += "\n\nTranscript to process:\n"
+    prompt += "\n\nIMPORTANT: Detect the language of the transcript and respond in that same language. Do not translate.\n\nTranscript to process:\n"
     
     return prompt
