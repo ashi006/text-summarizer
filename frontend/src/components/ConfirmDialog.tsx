@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 
 interface ConfirmDialogProps {
@@ -32,18 +33,17 @@ const ConfirmDialog = ({
 
     if (!open) return null;
 
-    return (
-        // Backdrop
+    // Use Portal to render at body level, avoiding parent transform stacking contexts
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}
+            className="fixed inset-0 z-[100] flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
             onClick={onCancel}
         >
-            {/* Dialog card */}
             <div
-                className="bg-white rounded-xl shadow-lg border border-border w-[320px] p-5 flex flex-col gap-4"
+                className="bg-white rounded-xl shadow-2xl border border-border w-[320px] p-5 flex flex-col gap-4 animate-in fade-in zoom-in duration-200"
                 onClick={(e) => e.stopPropagation()}
-                style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.14)' }}
+                style={{ boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
             >
                 {/* Header */}
                 <div className="flex flex-col gap-1">
@@ -71,7 +71,8 @@ const ConfirmDialog = ({
                     </Button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
