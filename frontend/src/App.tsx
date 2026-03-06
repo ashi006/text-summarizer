@@ -9,8 +9,7 @@ import api from './services/api';
 import historyApi from './services/historyApi';
 import type { HistoryItem } from './services/historyApi';
 import { useDeviceId } from './hooks/useDeviceId';
-import { Loader2, Copy, Paperclip, RotateCcw, Eraser, Menu, X } from "lucide-react";
-import logo from './assets/logo.svg';
+import { Loader2, Copy, Paperclip, RotateCcw, Eraser, Menu, X, Activity } from "lucide-react";
 import { Card, CardContent, CardTitle, CardHeader, CardFooter } from "./components/ui/card";
 import { Button } from "./components/ui/button";
 
@@ -343,9 +342,11 @@ function App() {
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 cursor-default'}
       `}>
         <div className="flex items-center justify-between mb-6 md:justify-center">
-          <div className="flex flex-col items-center">
-            <img src={logo} alt="GOSTA Labs" className="h-[50px] mx-auto mb-0" />
-            <div className="text-sm font-bold text-center">GOSTA Labs</div>
+          <div className="flex flex-col items-center gap-2">
+            <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
+              <Activity className="w-8 h-8" />
+            </div>
+            <div className="text-sm font-bold text-center tracking-tight">CareSummary</div>
           </div>
           <Button
             variant="ghost"
@@ -382,7 +383,7 @@ function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-y-auto md:overflow-hidden bg-[var(--bg)]">
+      <main className="flex-1 flex flex-col overflow-y-auto md:overflow-hidden bg-[var(--bg)] min-h-0">
         {/* Top Header */}
         <header className="h-[50px] border-b flex items-center justify-between px-4 bg-white z-20 shrink-0">
           <div className="flex items-center gap-3">
@@ -416,12 +417,12 @@ function App() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-4 overflow-y-auto md:overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-auto lg:h-full max-w-[1600px] mx-auto">
+        <div className="flex-1 p-4 overflow-y-auto md:overflow-hidden flex flex-col min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-auto lg:h-full max-w-[1600px] mx-auto w-full flex-1 min-h-0">
 
             {/* Left Card: Input */}
-            <Card className="flex flex-col h-full shadow-sm">
-              <CardHeader className="p-3 border-b space-y-0 flex flex-row items-center justify-between min-h-[50px]">
+            <Card className="flex flex-col h-[500px] lg:h-full shadow-sm min-h-0">
+              <CardHeader className="p-3 border-b space-y-0 flex flex-row items-center justify-between min-h-[50px] shrink-0">
                 <CardTitle className="text-xs font-semibold uppercase tracking-wider text-dim">Input Text</CardTitle>
                 {/* File upload icon in header */}
                 <button
@@ -441,7 +442,11 @@ function App() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (!file.name.endsWith('.txt')) { alert('Please upload a .txt file.'); return; }
+                    if (!file.name.endsWith('.txt')) {
+                      setError("Please upload a .txt file. Only plain text files are supported.");
+                      setTimeout(() => setError(null), 4000);
+                      return;
+                    }
                     handleFileUpload(file);
                     if (fileInputRef.current) fileInputRef.current.value = '';
                   }}
@@ -458,7 +463,7 @@ function App() {
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="p-4 border-t bg-muted/10 flex items-center justify-between">
+              <CardFooter className="p-4 border-t bg-muted/10 flex items-center justify-between shrink-0">
                 {/* Left: char count + clear */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{inputText.length} characters</span>
@@ -494,8 +499,8 @@ function App() {
             </Card>
 
             {/* Right Card: Output */}
-            <Card className="flex flex-col h-full shadow-sm">
-              <CardHeader className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-surface3/50 min-h-[50px]">
+            <Card className="flex flex-col h-[500px] lg:h-full shadow-sm min-h-0">
+              <CardHeader className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-surface3/50 min-h-[50px] shrink-0">
                 <div className="font-semibold text-xs uppercase tracking-wider text-dim">Output</div>
                 <LanguageSelector
                   selectedLanguage={selectedLanguage}
@@ -503,14 +508,14 @@ function App() {
                   isLoading={isGenerating || isRegenerating}
                 />
               </CardHeader>
-              <CardContent className="flex-1 p-[1em] overflow-hidden relative">
+              <CardContent className="flex-1 p-[1em] flex flex-col min-h-0 overflow-hidden relative">
                 <SummaryDisplay
                   summary={displayedSummary}
                   isLoading={isGenerating || isRegenerating}
                   language={selectedLanguage}
                 />
               </CardContent>
-              <CardFooter className="p-4 border-t bg-muted/10 flex items-center gap-1">
+              <CardFooter className="p-4 border-t bg-muted/10 flex items-center gap-1 shrink-0">
                 <Button
                   variant="ghost"
                   size="sm"

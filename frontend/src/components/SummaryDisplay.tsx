@@ -1,3 +1,5 @@
+import ReactMarkdown from 'react-markdown';
+
 interface SummaryDisplayProps {
     summary: string;
     isLoading: boolean;
@@ -29,13 +31,15 @@ const SummaryDisplay = ({ summary, isLoading, language }: SummaryDisplayProps) =
     }
 
     return (
-        <div className="relative h-full flex flex-col">
+        <div className="relative h-full flex flex-col min-h-0">
             <div
-                className="flex-1 whitespace-pre-wrap leading-relaxed text-sm p-4 overflow-y-auto border rounded-lg bg-background"
+                className="flex-1 overflow-y-auto border rounded-lg bg-background p-4 prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed"
                 dir={isRTL ? 'rtl' : 'ltr'}
                 style={isRTL ? { textAlign: 'right', lineHeight: '2', fontFamily: 'serif' } : undefined}
             >
-                {summary}
+                <ReactMarkdown>
+                    {summary}
+                </ReactMarkdown>
             </div>
         </div>
     );
