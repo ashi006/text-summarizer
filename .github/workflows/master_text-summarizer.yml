@@ -64,4 +64,3 @@ jobs:
           app-name: 'text-summarizer'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4E1BB1AB00584B24BB4510D86E5B117B }}
-          startup-command: 'gunicorn --bind=0.0.0.0 --timeout 600 -w 4 -k uvicorn.workers.UvicornWorker app.main:app'
