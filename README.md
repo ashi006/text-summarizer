@@ -5,7 +5,7 @@ A powerful web application for summarizing and translating text, built with Reac
 ## Live Demo
 
 - **Frontend (Static Web App):** [https://green-wave-035404f03.6.azurestaticapps.net/](https://green-wave-035404f03.6.azurestaticapps.net/)
-- **Backend (App Service):** [https://text-summarizer-hjeshxhsakgsg8ae.westeurope-01.azurewebsites.net/](https://text-summarizer-hjeshxhsakgsg8ae.westeurope-01.azurewebsites.net/)
+- **Backend (App Service):** [https://text-summarizer-hjeshxhsakgsg8ae.westeurope-01.azurewebsites.net/docs](https://text-summarizer-hjeshxhsakgsg8ae.westeurope-01.azurewebsites.net/docs)
 
 ## Features
 
