@@ -19,6 +19,7 @@ app.add_middleware(
         "http://localhost:5173",
         "https://calm-tree-002b26003.1.azurestaticapps.net",
         "https://calm-tree-002b26003.azurestaticapps.net",
+        "https://green-wave-035404f03.6.azurestaticapps.net",
         os.environ.get("FRONTEND_URL", "").rstrip("/"),
     ],
     allow_credentials=True,
