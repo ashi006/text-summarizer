@@ -2,11 +2,6 @@
 
 A powerful web application for summarizing and translating text, built with React, TypeScript, and FastAPI.
 
-## Live Demo
-
-- **Frontend (Static Web App):** [https://green-wave-035404f03.6.azurestaticapps.net/](https://green-wave-035404f03.6.azurestaticapps.net/)
-- **Backend (App Service):** [https://text-summarizer-hjeshxhsakgsg8ae.westeurope-01.azurewebsites.net/docs](https://text-summarizer-hjeshxhsakgsg8ae.westeurope-01.azurewebsites.net/docs)
-
 ## Features
 
 -   **Text Summarization**: Generate summaries in various styles (paragraph, bullet points) and lengths (brief, detailed).
